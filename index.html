@@ -138,6 +138,13 @@
   @keyframes breathe{50%{transform:translate(-50%,-50%) scale(1.08);box-shadow:0 0 80px rgba(255,255,255,.45),0 0 180px rgba(255,255,255,.16)}}
   @keyframes pulse{50%{opacity:.35}}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .cta.alt{background:transparent;color:var(--text);border:1px solid var(--line2)}
+  .cta.alt:hover{background:rgba(255,255,255,.06);box-shadow:none}
+  .macpick{display:none;margin-top:14px;gap:10px;justify-content:center;flex-wrap:wrap}
+  .macpick.on{display:flex}
+  .macpick a{padding:10px 18px;border:1px solid var(--line2);border-radius:999px;font-size:14px}
+  .macpick a:hover{background:var(--text);color:var(--bg)}
 </style>
 </head>
 <body>
@@ -169,11 +176,21 @@
       <h1>J.A.R.V.I.S</h1>
       <p class="lead">Скажите <b>«Джарвис»</b> — и он ответит. Живой разговор голосом, запуск программ, музыка,
         чтение экрана и встроенный ИИ, который работает <b>даже без интернета</b>.</p>
-      <a class="cta" href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.2/JARVIS-Setup-1.2.exe" download>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-        Установить для Windows
-      </a>
-      <div class="meta mono"><span>версия 1.2</span>·<span>JARVIS-Setup-1.2.exe</span>·<span>≈ 250 МБ</span>·<span>бесплатно</span></div>
+      <div class="ctas">
+        <a class="cta" href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.2/JARVIS-Setup-1.2.exe" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Установить для Windows
+        </a>
+        <a class="cta alt" href="#mac" onclick="document.getElementById('macpick').classList.toggle('on');return false;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>
+          Скачать для macOS
+        </a>
+      </div>
+      <div class="macpick" id="macpick">
+        <a href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.2/JARVIS-1.2-mac-arm64.zip">Mac на M1 / M2 / M3 / M4</a>
+        <a href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.2/JARVIS-1.2-mac-x64.zip">Mac на Intel</a>
+      </div>
+      <div class="meta mono"><span>версия 1.2</span>·<span>Windows 10/11 и macOS 11+</span>·<span>≈ 250 МБ</span>·<span>бесплатно</span></div>
     </div>
   </div>
 
@@ -250,6 +267,12 @@
       </div>
       <div class="note reveal"><b>Почему Windows предупреждает?</b> Программа новая и не подписана платным сертификатом, поэтому фильтр SmartScreen
         её пока «не знает». Это обычное дело для бесплатных программ.</div>
+      <div class="note reveal" id="mac" style="margin-top:14px"><b>macOS.</b> Скачайте архив для своего Mac
+        (<a href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.2/JARVIS-1.2-mac-arm64.zip" style="text-decoration:underline">M1/M2/M3/M4</a> или <a href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.2/JARVIS-1.2-mac-x64.zip" style="text-decoration:underline">Intel</a>;
+        какой у вас — меню Apple → «Об этом Mac»), распакуйте и перетащите JARVIS в «Программы». Первый запуск: правой кнопкой по JARVIS →
+        «Открыть» → «Открыть» (программа не заверена Apple; на macOS 15 — Настройки → Конфиденциальность и безопасность → «Всё равно открыть»).
+        Затем разрешите: <b>Микрофон</b>, <b>Универсальный доступ</b>, <b>Запись экрана</b> и <b>Автоматизацию</b> — без них он не услышит вас и не сможет нажимать кнопки.
+        Версия для Mac — первая, если что-то не работает, напишите.</div>
     </div>
   </section>
 
@@ -259,7 +282,7 @@
       <h2 class="reveal">Что нужно</h2>
       <p class="sub reveal">Видеокарта NVIDIA не обязательна, но с ней распознавание речи и ИИ работают заметно быстрее и точнее.</p>
       <div class="req reveal">
-        <div><small class="mono">Система</small><b>Windows 10 / 11, 64-бит</b></div>
+        <div><small class="mono">Система</small><b>Windows 10 / 11 или macOS 11+</b></div>
         <div><small class="mono">Память</small><b>8 ГБ ОЗУ, лучше 16</b></div>
         <div><small class="mono">Диск</small><b>около 6 ГБ</b></div>
         <div><small class="mono">Ещё</small><b>микрофон и колонки</b></div>
@@ -290,7 +313,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
         Установить JARVIS 1.2
       </a>
-      <div class="meta mono"><span>Windows 10 / 11</span>·<span>≈ 250 МБ</span></div>
+      <div class="meta mono"><span>Windows 10 / 11 · macOS</span>·<span>≈ 250 МБ</span></div>
     </div>
   </section>
 </main>
