@@ -1,0 +1,308 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>J.A.R.V.I.S — голосовой ИИ-ассистент</title>
+<meta name="description" content="JARVIS — голосовой ИИ-ассистент для Windows: живой разговор, команды голосом, встроенный ИИ без интернета. Бесплатно.">
+<meta property="og:title" content="J.A.R.V.I.S — голосовой ИИ-ассистент для Windows">
+<meta property="og:description" content="Скажите «Джарвис» — и он ответит. Живой разговор, команды, музыка, экран, встроенный ИИ.">
+<meta property="og:image" content="jarvis.png">
+<meta name="theme-color" content="#050608">
+<link rel="icon" href="jarvis.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050608; --bg2:#0a0b0e; --card:#0d0e12; --line:#1c1e24; --line2:#2a2d35;
+    --text:#f4f4f5; --dim:#8e95a2; --faint:#4b5060; --glow:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:Inter,"Segoe UI",system-ui,sans-serif;line-height:1.55;
+       -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:"JetBrains Mono",Consolas,monospace}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  /* сетка-фон и шум */
+  .bg-grid{position:fixed;inset:0;z-index:-2;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px;opacity:.25;mask-image:radial-gradient(ellipse at 50% 20%,#000 0%,transparent 70%)}
+  .bg-glow{position:fixed;left:50%;top:-20vh;width:120vh;height:120vh;transform:translateX(-50%);z-index:-1;
+    background:radial-gradient(circle,rgba(255,255,255,.07) 0%,transparent 60%);pointer-events:none}
+
+  /* шапка */
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);background:rgba(5,6,8,.72);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:4px;font-size:14px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--text);box-shadow:0 0 12px #fff;animation:pulse 2.4s infinite}
+  .nav nav{display:flex;gap:28px;font-size:13px;color:var(--dim)}
+  .nav nav a:hover{color:var(--text)}
+  .nav .mini{padding:8px 16px;border:1px solid var(--line2);border-radius:999px;font-size:13px;transition:.2s}
+  .nav .mini:hover{background:var(--text);color:var(--bg)}
+  @media (max-width:760px){.nav nav{display:none}}
+
+  /* главный экран */
+  .hero{min-height:calc(100vh - 64px);display:grid;place-items:center;text-align:center;padding:48px 0 80px}
+  .orb{position:relative;width:min(340px,78vw);aspect-ratio:1;margin:0 auto 36px}
+  .orb svg{position:absolute;inset:0;width:100%;height:100%}
+  .spin{animation:spin 24s linear infinite;transform-origin:50% 50%}
+  .spin-r{animation:spin 14s linear infinite reverse;transform-origin:50% 50%}
+  .spin-f{animation:spin 6s linear infinite;transform-origin:50% 50%}
+  .core{position:absolute;left:50%;top:50%;width:22%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+        background:radial-gradient(circle,#fff 0%,#e9e9ee 30%,rgba(255,255,255,.15) 62%,transparent 70%);
+        box-shadow:0 0 60px rgba(255,255,255,.35),0 0 140px rgba(255,255,255,.12);animation:breathe 3.2s ease-in-out infinite}
+  .eyebrow{font-size:11px;letter-spacing:4px;color:var(--dim);text-transform:uppercase;margin-bottom:18px}
+  h1{font-size:clamp(44px,9vw,96px);font-weight:600;letter-spacing:clamp(6px,1.6vw,18px);line-height:1;margin-bottom:22px;
+     background:linear-gradient(180deg,#fff 30%,#8e95a2);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:clamp(16px,2.2vw,19px);color:var(--dim);max-width:640px;margin:0 auto 38px}
+  .lead b{color:var(--text);font-weight:500}
+  .cta{display:inline-flex;align-items:center;gap:14px;padding:18px 34px;border-radius:999px;background:var(--text);color:var(--bg);
+       font-weight:600;font-size:17px;transition:transform .2s,box-shadow .2s;box-shadow:0 0 0 0 rgba(255,255,255,.4)}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 10px 50px rgba(255,255,255,.25)}
+  .cta svg{width:22px;height:22px}
+  .meta{margin-top:16px;font-size:12.5px;color:var(--faint)}
+  .meta span{margin:0 8px}
+
+  /* типографика секций */
+  section{padding:110px 0;border-top:1px solid var(--line)}
+  .kicker{font-size:11px;letter-spacing:4px;color:var(--dim);text-transform:uppercase;margin-bottom:14px}
+  h2{font-size:clamp(28px,4vw,42px);font-weight:600;letter-spacing:-.5px;margin-bottom:16px}
+  .sub{color:var(--dim);max-width:620px;margin-bottom:56px}
+
+  /* возможности */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:600px){.grid{grid-template-columns:1fr}}
+  .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:20px;padding:26px;
+        transition:border-color .25s,transform .25s;position:relative;overflow:hidden}
+  .card:hover{border-color:var(--line2);transform:translateY(-3px)}
+  .card::after{content:"";position:absolute;inset:-1px;border-radius:20px;pointer-events:none;
+     background:radial-gradient(400px circle at var(--x,50%) var(--y,0%),rgba(255,255,255,.07),transparent 40%)}
+  .ic{width:42px;height:42px;border-radius:12px;border:1px solid var(--line2);display:grid;place-items:center;margin-bottom:18px}
+  .ic svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .card h3{font-size:16.5px;font-weight:600;margin-bottom:8px}
+  .card p{font-size:14px;color:var(--dim)}
+  .say{display:inline-block;margin-top:14px;font-size:12px;color:#c9cbd1;padding:5px 10px;border:1px solid var(--line2);border-radius:8px}
+
+  /* терминал-пример */
+  .demo{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  @media (max-width:860px){.demo{grid-template-columns:1fr}}
+  .term{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .term .bar{display:flex;gap:7px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .term .bar i{width:10px;height:10px;border-radius:50%;background:var(--line2)}
+  .term .body{padding:22px;font-size:13.5px;min-height:260px}
+  .ln{margin-bottom:12px;opacity:0;transform:translateY(6px);transition:.5s}
+  .ln.on{opacity:1;transform:none}
+  .you{color:var(--dim)} .you::before{content:"вы  › ";color:var(--faint)}
+  .j{color:var(--text)} .j::before{content:"jarvis › ";color:var(--faint)}
+
+  /* шаги установки */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  @media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.steps{grid-template-columns:1fr}}
+  .step{border:1px solid var(--line);border-radius:18px;padding:24px;background:var(--bg2)}
+  .step::before{counter-increment:s;content:"0" counter(s);font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--faint);
+        display:block;margin-bottom:14px}
+  .step h4{font-size:15px;margin-bottom:6px}
+  .step p{font-size:13.5px;color:var(--dim)}
+  .note{margin-top:22px;padding:16px 20px;border:1px dashed var(--line2);border-radius:14px;color:var(--dim);font-size:13.5px}
+  .note b{color:var(--text);font-weight:500}
+
+  /* требования */
+  .req{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  @media (max-width:760px){.req{grid-template-columns:repeat(2,1fr)}}
+  .req div{padding:24px;border-right:1px solid var(--line)}
+  .req div:last-child{border-right:none}
+  .req small{display:block;font-size:11px;letter-spacing:2.5px;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
+  .req b{font-weight:500;font-size:15px}
+
+  /* FAQ */
+  details{border-bottom:1px solid var(--line);padding:20px 0}
+  summary{cursor:pointer;list-style:none;font-weight:500;display:flex;justify-content:space-between;gap:20px}
+  summary::after{content:"+";color:var(--dim);font-size:20px;line-height:1;transition:transform .2s}
+  details[open] summary::after{transform:rotate(45deg)}
+  details p{color:var(--dim);font-size:14.5px;margin-top:12px;max-width:760px}
+
+  /* финал */
+  .final{text-align:center}
+  .final h2{margin-bottom:28px}
+  footer{border-top:1px solid var(--line);padding:30px 0;color:var(--faint);font-size:12.5px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
+  .reveal.on{opacity:1;transform:none}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes breathe{50%{transform:translate(-50%,-50%) scale(1.08);box-shadow:0 0 80px rgba(255,255,255,.45),0 0 180px rgba(255,255,255,.16)}}
+  @keyframes pulse{50%{opacity:.35}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div><div class="bg-glow"></div>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#"><span class="dot"></span>J.A.R.V.I.S</a>
+    <nav><a href="#features">Возможности</a><a href="#install">Установка</a><a href="#req">Требования</a><a href="#faq">Вопросы</a></nav>
+    <a class="mini" href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.0/JARVIS-Setup-1.0.exe" download>Скачать</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero wrap">
+    <div>
+      <div class="orb" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <g class="spin"><circle cx="100" cy="100" r="96" fill="none" stroke="#2a2d35" stroke-width=".6" stroke-dasharray="1 5"/></g>
+          <circle cx="100" cy="100" r="84" fill="none" stroke="#1c1e24" stroke-width=".8"/>
+          <g class="spin-r"><circle cx="100" cy="100" r="72" fill="none" stroke="#3a3e48" stroke-width="1.6" stroke-dasharray="28 10"/></g>
+          <g class="spin-f"><path d="M100 28 A72 72 0 0 1 172 100" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".85"/></g>
+          <circle cx="100" cy="100" r="54" fill="none" stroke="#2a2d35" stroke-width=".8"/>
+          <g class="spin"><circle cx="100" cy="100" r="40" fill="none" stroke="#4b5060" stroke-width=".6" stroke-dasharray="2 3"/></g>
+        </svg>
+        <div class="core"></div>
+      </div>
+      <div class="eyebrow mono">Голосовой ИИ-ассистент для Windows</div>
+      <h1>J.A.R.V.I.S</h1>
+      <p class="lead">Скажите <b>«Джарвис»</b> — и он ответит. Живой разговор голосом, запуск программ, музыка,
+        чтение экрана и встроенный ИИ, который работает <b>даже без интернета</b>.</p>
+      <a class="cta" href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.0/JARVIS-Setup-1.0.exe" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Установить для Windows
+      </a>
+      <div class="meta mono"><span>версия 1.0</span>·<span>JARVIS-Setup-1.0.exe</span>·<span>≈ 250 МБ</span>·<span>бесплатно</span></div>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="kicker mono">Возможности</div>
+      <h2 class="reveal">Как в фильме. Только у вас на компьютере.</h2>
+      <p class="sub reveal">Говорите обычными словами — JARVIS понимает смысл, сам делает и сам отвечает голосом. Никаких окон «Разрешить?».</p>
+      <div class="grid">
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></div>
+          <h3>Живой разговор</h3><p>Слушает ваш голос, а не текст, и отвечает своим голосом. Можно перебивать, болтать и спрашивать что угодно.</p><span class="say mono">«Джарвис, как дела?»</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+          <h3>Программы одной фразой</h3><p>Открывает и закрывает приложения, несколько сразу и одновременно. Сам находит их на компьютере.</p><span class="say mono">«Открой стим, дискорд и телеграм»</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <h3>Музыка и видео</h3><p>Включает YouTube и музыку, ставит на паузу, листает, меняет громкость и говорит, что сейчас играет.</p><span class="say mono">«Что сейчас играет?»</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></div>
+          <h3>Видит экран</h3><p>Читает любое окно — даже свёрнутое: чаты, сообщения, ошибки. Отвечает на вопросы о том, что на экране.</p><span class="say mono">«Что пишут в дискорде?»</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></div>
+          <h3>Свой ИИ без интернета</h3><p>Встроенная нейросеть работает прямо на компьютере — без подписок и токенов. Для сложных задач подключает ИИ мощнее.</p><span class="say mono">«Объясни, как работает…»</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20"/></svg></div>
+          <h3>Следит за сайтами</h3><p>Сам проверяет ваши любимые сайты и говорит, когда появилось новое. Умеет обходить блокировки DNS.</p><span class="say mono">«Что нового на моих сайтах?»</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14Z"/><path d="M8 7h8"/><path d="M8 11h6"/></svg></div>
+          <h3>Учит английскому</h3><p>Словарь на 3000+ слов, учебник с правилами и тренировка с интервальным повторением — голосом.</p><span class="say mono">«Давай учить английский»</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div>
+          <h3>Всё у вас</h3><p>История, настройки и модели лежат в одной папке на вашем диске. Ничего не отправляется без нужды.</p><span class="say mono">D:\JARVIS</span></div>
+        <div class="card reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div>
+          <h3>Многозадачный</h3><p>Одновременно играет музыку, следит за сайтами, открывает программы и разговаривает — ничего не ждёт.</p><span class="say mono">«Громкость 30 и открой браузер»</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap demo">
+      <div>
+        <div class="kicker mono">Пример</div>
+        <h2 class="reveal">Просто скажите.</h2>
+        <p class="sub reveal" style="margin-bottom:0">JARVIS спит, пока не услышит своё имя. Потом слушает, делает, спрашивает
+          «ещё что-нибудь?» и засыпает, когда вы скажете «нет» или «отстань».</p>
+      </div>
+      <div class="term mono" id="term">
+        <div class="bar"><i></i><i></i><i></i></div>
+        <div class="body">
+          <div class="ln you">Джарвис</div>
+          <div class="ln j">Здравствуйте, сэр.</div>
+          <div class="ln you">открой стим и дискорд, включи lo-fi на ютубе</div>
+          <div class="ln j">Готово. Steam и Discord открыты, музыка играет.</div>
+          <div class="ln you">что пишут в дискорде?</div>
+          <div class="ln j">В «Дота 2 | олени» зовут в пати через 10 минут.</div>
+          <div class="ln you">отстань</div>
+          <div class="ln j">Буду рядом.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <div class="kicker mono">Установка</div>
+      <h2 class="reveal">Одна кнопка. Дальше — само.</h2>
+      <p class="sub reveal">Установщик сам выберет диск с местом, скачает ИИ, голос и распознавание речи, создаст ярлык и запустит JARVIS.</p>
+      <div class="steps">
+        <div class="step reveal"><h4>Скачайте</h4><p>Нажмите «Установить для Windows» — скачается JARVIS-Setup-1.0.exe.</p></div>
+        <div class="step reveal"><h4>Запустите</h4><p>Откройте файл. Если Windows покажет синее окно — «Подробнее» → «Выполнить в любом случае».</p></div>
+        <div class="step reveal"><h4>Нажмите «Установить»</h4><p>Всё нужное встанет само. Скачивание ИИ займёт 5–20 минут.</p></div>
+        <div class="step reveal"><h4>Скажите «Джарвис»</h4><p>Он поздоровается. Попросите что-нибудь открыть или просто поболтайте.</p></div>
+      </div>
+      <div class="note reveal"><b>Почему Windows предупреждает?</b> Программа новая и не подписана платным сертификатом, поэтому фильтр SmartScreen
+        её пока «не знает». Это обычное дело для бесплатных программ.</div>
+    </div>
+  </section>
+
+  <section id="req">
+    <div class="wrap">
+      <div class="kicker mono">Требования</div>
+      <h2 class="reveal">Что нужно</h2>
+      <p class="sub reveal">Видеокарта NVIDIA не обязательна, но с ней распознавание речи и ИИ работают заметно быстрее и точнее.</p>
+      <div class="req reveal">
+        <div><small class="mono">Система</small><b>Windows 10 / 11, 64-бит</b></div>
+        <div><small class="mono">Память</small><b>8 ГБ ОЗУ, лучше 16</b></div>
+        <div><small class="mono">Диск</small><b>около 6 ГБ</b></div>
+        <div><small class="mono">Ещё</small><b>микрофон и колонки</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="kicker mono">Вопросы</div>
+      <h2 class="reveal">Частые вопросы</h2>
+      <div style="margin-top:30px">
+        <details><summary>Это бесплатно?</summary><p>Да. Встроенный ИИ работает на вашем компьютере, без подписок. Для «живого голоса» можно бесплатно добавить ключ Google Gemini в настройках — тогда разговор станет ещё естественнее.</p></details>
+        <details><summary>На каких языках он понимает?</summary><p>Русский, украинский и английский. Голос «Джарвис» говорит на всех трёх.</p></details>
+        <details><summary>Как его остановить или усыпить?</summary><p>Скажите «нет», «отстань» или «спи». Музыку — «пауза» или «останови музыку». Закрыть совсем — значок в трее → «Выход».</p></details>
+        <details><summary>Он всё время слушает?</summary><p>Он ждёт только своё имя. Речь распознаётся прямо на компьютере, пока вы его не позвали — ничего никуда не отправляется.</p></details>
+        <details><summary>Как обновить?</summary><p>Скачайте новую версию с этой страницы и установите в ту же папку — настройки, команды и скачанные модели сохранятся.</p></details>
+        <details><summary>Как удалить?</summary><p>Закройте JARVIS (трей → «Выход») и удалите папку, куда он установлен (например, D:\JARVIS), и ярлык с рабочего стола.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <div class="kicker mono">Готовы?</div>
+      <h2 class="reveal">«Джарвис, ты здесь?»</h2>
+      <a class="cta" href="https://github.com/c62232830-hash/jarvis-ai/releases/download/v1.0/JARVIS-Setup-1.0.exe" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Установить JARVIS 1.0
+      </a>
+      <div class="meta mono"><span>Windows 10 / 11</span>·<span>≈ 250 МБ</span></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>J.A.R.V.I.S · версия 1.0</span><span>Сделано для своих</span></div></footer>
+
+<script>
+  // плавное появление блоков
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }), {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  // подсветка карточек за курсором
+  document.querySelectorAll('.card').forEach(c => c.addEventListener('mousemove', e => {
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--x', (e.clientX - r.left) + 'px'); c.style.setProperty('--y', (e.clientY - r.top) + 'px');
+  }));
+  // «диалог» печатается построчно, когда его видно
+  const term = document.getElementById('term');
+  new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect();
+    term.querySelectorAll('.ln').forEach((l, i) => setTimeout(() => l.classList.add('on'), 400 + i * 700)); } }, {threshold:.4}).observe(term);
+</script>
+</body>
+</html>
+
